@@ -8,11 +8,8 @@ namespace BookCatalogue.API.Helpers
     {
         public BookProfile()
         {
-            CreateMap<Models.Book, BookDTO>();
-            CreateMap<BookDTO, Models.Book>();
-            CreateMap<Book, Models.Book>();
-            CreateMap<Models.Book, Book>();
             CreateMap<Book, BookDTO>();
+            CreateMap<BookDTO, Book>();
         }
     }
 }

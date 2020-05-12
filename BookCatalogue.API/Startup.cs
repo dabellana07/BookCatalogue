@@ -1,13 +1,9 @@
 using AutoMapper;
 using BookCatalogue.API.Extensions;
-using BookCatalogue.Contracts.Data.Repositories;
 using BookCatalogue.Contracts.ElasticSearch.Services;
-using BookCatalogue.Data;
-using BookCatalogue.Data.Repositories;
 using BookCatalogue.ElasticSearch.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -36,11 +32,6 @@ namespace BookCatalogue.API
             services.AddControllers();
 
             services.AddAutoMapper(typeof(Startup));
-
-            services.AddDbContext<BookCatalogueContext>(options =>
-                options.UseSqlServer(Configuration["BookCatalogue"]));
-
-            services.AddScoped<IBookRepository, BookRepository>();
 
             services.AddElasticSearch(Configuration);
             services.AddScoped<IBookElasticService, BookElasticService>();

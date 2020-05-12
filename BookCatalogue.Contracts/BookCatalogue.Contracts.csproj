@@ -6,7 +6,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BookCatalogue.ElasticSearch.Documents\BookCatalogue.ElasticSearch.Documents.csproj" />
-    <ProjectReference Include="..\BookCatalogue.Models\BookCatalogue.Models.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,6 +1,7 @@
 ﻿using BookCatalogue.Contracts.ElasticSearch.Services;
 using BookCatalogue.ElasticSearch.Documents;
 using Nest;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -17,32 +18,95 @@ namespace BookCatalogue.ElasticSearch.Services
             _client = client;
         }
 
-        public async Task<IEnumerable<Book>> SearchBooks(string name)
+        public async Task<IEnumerable<Book>> SearchBooks(
+            string searchValue,
+            string genre = "",
+            DateTime? startDate = null,
+            DateTime? endDate = null,
+            int take = 10)
         {
-            var searchResponse = await _client.SearchAsync<Book>(s => s
+            var filters = new List<Func<QueryContainerDescriptor<Book>, QueryContainer>>();
+
+            if (!string.IsNullOrEmpty(genre))
+            {
+                filters.Add(fq => fq.MatchPhrase(t => t.Field(f => f.Genre).Query(genre)));
+            }
+
+            if (startDate.HasValue)
+            {
+                filters.Add(fq => fq
+                    .DateRange(dr => dr
+                        .Field(f => f.PublishDate)
+                        .GreaterThanOrEquals(startDate.Value)));
+            }
+
+            if (endDate.HasValue)
+            {
+                filters.Add(fq => fq
+                    .DateRange(dr => dr
+                        .Field(f => f.PublishDate)
+                        .LessThanOrEquals(endDate.Value)));
+            }
+
+            var response = await _client.SearchAsync<Book>(s => s
                 .Index(IndexName)
+                .Take(take)
                 .Query(q => q
-                    .Match(m => m
-                        .Field(f => f.Title)
-                        .Query(name))));
-            return searchResponse.Documents;
+                    .Bool(bq => bq.Filter(filters)) &&
+                    q.MultiMatch(mm => mm
+                        .Fields(f => f
+                            .Field(f1 => f1.Title)
+                            .Field(f1 => f1.Description))
+                        .Query(searchValue))));
+
+            return response.Documents;
         }
 
-        public Task AddBook(Book book)
+        public async Task<Book> GetBook(Guid id)
         {
-            return _client.IndexAsync(book, i => i.Index(IndexName));
+            var response = await _client.GetAsync<Book>(id, s => s
+                .Index(IndexName));
+            return response.Source;
         }
 
-        public Task RemoveBook(int id)
+        public async Task<Book> AddBook(Book book)
         {
-            return _client.DeleteAsync<Book>(id, i => i.Index(IndexName));
+            book.Id = Guid.NewGuid();
+
+            var indexResponse = await _client.IndexAsync(book, i => i
+                .Index(IndexName)
+                .Id(book.Id));
+
+            if (!indexResponse.IsValid)
+            {
+                throw indexResponse.OriginalException;
+            }
+
+            var getResponse = await _client.GetAsync<Book>(indexResponse.Id, g => g
+                .Index(IndexName));
+            return getResponse.Source;
         }
 
-        public Task UpdateBook(Book book)
+        public async Task RemoveBook(Guid id)
         {
-            return _client.UpdateAsync<Book>(book.Id, b => b
+            var response = await _client.DeleteAsync<Book>(id, i => i.Index(IndexName));
+
+            if (!response.IsValid)
+            {
+                throw response.OriginalException;
+            }
+        }
+
+        public async Task UpdateBook(Book book)
+        {
+            var response = await _client.UpdateAsync<Book>(book.Id, b => b
                 .Index(IndexName)
                 .Doc(book));
+
+            if (!response.IsValid)
+            {
+                throw response.OriginalException;
+            }
         }
     }
 }

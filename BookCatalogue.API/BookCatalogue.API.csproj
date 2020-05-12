@@ -7,21 +7,13 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="9.0.0" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.3">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.3" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.2" />
     <PackageReference Include="NEST" Version="7.6.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\BookCatalogue.Contracts\BookCatalogue.Contracts.csproj" />
-    <ProjectReference Include="..\BookCatalogue.Data\BookCatalogue.Data.csproj" />
     <ProjectReference Include="..\BookCatalogue.ElasticSearch\BookCatalogue.ElasticSearch.csproj" />
-    <ProjectReference Include="..\BookCatalogue.Models\BookCatalogue.Models.csproj" />
   </ItemGroup>
 
 
