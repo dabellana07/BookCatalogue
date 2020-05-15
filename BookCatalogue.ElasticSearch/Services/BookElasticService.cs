@@ -110,9 +110,21 @@ namespace BookCatalogue.ElasticSearch.Services
             }
         }
 
-        private async void InitializeIndex()
+        private void InitializeIndex()
         {
-            await _client.Indices.CreateAsync(IndexName, c => c
+            _client.Indices.Create(IndexName, c => c
+                .Map<Book>(m => m
+                    .Properties(p => p
+                        .Text(t => t
+                            .Name(n => n.Title)
+                            .Analyzer("custom_latin_transform")
+                        )
+                        .Text(t1 => t1
+                            .Name(n1 => n1.Description)
+                            .Analyzer("custom_latin_transform")
+                        )
+                    )
+                )
                 .Settings(s => s
                     .Analysis(a => a
                         .Analyzers(az => az
