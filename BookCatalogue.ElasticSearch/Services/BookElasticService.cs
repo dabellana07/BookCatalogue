@@ -16,6 +16,7 @@ namespace BookCatalogue.ElasticSearch.Services
         public BookElasticService(IElasticClient client)
         {
             _client = client;
+            InitializeIndex();
         }
 
         public async Task<IEnumerable<Book>> SearchBooks(
@@ -107,6 +108,27 @@ namespace BookCatalogue.ElasticSearch.Services
             {
                 throw response.OriginalException;
             }
+        }
+
+        private async void InitializeIndex()
+        {
+            await _client.Indices.CreateAsync(IndexName, c => c
+                .Settings(s => s
+                    .Analysis(a => a
+                        .Analyzers(az => az
+                            .Custom("latin", azc => azc
+                                .Tokenizer("keyword")
+                                .Filters(new string[]{"custom_latin_transform"})
+                            )
+                        )
+                        .TokenFilters(tf => tf
+                            .IcuTransform("custom_latin_transform", icut => icut
+                                .Id("Any-Latin; NFD; [:Nonspacing Mark:] Remove; NFC")
+                            )
+                        )
+                    )
+                )
+            );
         }
     }
 }
