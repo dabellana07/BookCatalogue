@@ -1,12 +1,15 @@
+using System;
 using AutoMapper;
 using BookCatalogue.API.Extensions;
 using BookCatalogue.Contracts.ElasticSearch.Services;
 using BookCatalogue.ElasticSearch.Services;
+using Elasticsearch.Net;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Nest;
 
 namespace BookCatalogue.API
 {
@@ -34,7 +37,7 @@ namespace BookCatalogue.API
             services.AddAutoMapper(typeof(Startup));
 
             services.AddElasticSearch(Configuration);
-            services.AddScoped<IBookElasticService, BookElasticService>();
+            services.AddSingleton<IBookElasticService, BookElasticService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

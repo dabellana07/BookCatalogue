@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Nest;
 
@@ -8,10 +9,14 @@ namespace BookCatalogue.API.Extensions
     {
         public static void AddElasticSearch(this IServiceCollection services, IConfiguration configuration)
         {
-            var url = configuration["ElasticSearchUrl"];
-            var settings = new ConnectionSettings(new System.Uri(url));
-            var client = new ElasticClient(settings);
+            var uri = new Uri(configuration["ElasticSearchConfig:Url"]);
+            var username = configuration["ElasticSearchConfig:Username"];
+            var password = configuration["ElasticSearchConfig:Password"];
 
+            var settings = new ConnectionSettings(uri);
+            settings.BasicAuthentication(username, password);
+
+            var client = new ElasticClient(settings);
             services.AddSingleton<IElasticClient>(client);
         }
     }
